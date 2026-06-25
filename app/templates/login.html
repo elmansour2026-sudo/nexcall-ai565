@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexCall AI — Connexion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#F4F6FB; --surface:#fff; --border:#E5E9F0; --border2:#D8DEE9;
+      --blue:#1D6FF2; --blue2:#1257C9; --text:#1A2233; --text2:#6B7689; --red:#E5484D;
+      --font:'Inter',sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+      box-shadow:0 8px 30px rgba(16,24,40,.10);width:100%;max-width:380px;padding:30px 28px}
+    .brand{display:flex;align-items:center;gap:11px;margin-bottom:22px;justify-content:center}
+    .brand-icon{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#1D6FF2,#3B8BFF);
+      display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;
+      box-shadow:0 2px 8px rgba(29,111,242,.35)}
+    .brand-name{font-size:18px;font-weight:800;letter-spacing:-.3px}
+    .brand-sub{font-size:11px;color:var(--text2)}
+    h1{font-size:16px;font-weight:700;text-align:center;margin-bottom:4px}
+    .sub{font-size:12.5px;color:var(--text2);text-align:center;margin-bottom:22px}
+    .group{margin-bottom:14px}
+    label{display:block;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+      color:var(--text2);margin-bottom:6px}
+    input{width:100%;padding:11px 13px;background:#fff;border:1px solid var(--border2);border-radius:8px;
+      font-size:14px;font-family:var(--font);outline:none;transition:border-color .12s,box-shadow .12s}
+    input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,111,242,.12)}
+    .btn{width:100%;padding:11px;margin-top:6px;background:var(--blue);color:#fff;border:none;border-radius:8px;
+      font-size:14px;font-weight:600;cursor:pointer;transition:background .12s}
+    .btn:hover{background:var(--blue2)}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .err{display:none;margin-top:14px;padding:10px 12px;background:rgba(229,72,77,.08);
+      border:1px solid rgba(229,72,77,.25);color:#C4393D;border-radius:8px;font-size:12.5px}
+    .foot{margin-top:18px;text-align:center;font-size:11px;color:#9AA4B5}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">
+        <div class="brand-icon">☎</div>
+        <div>
+          <div class="brand-name">NexCall AI</div>
+          <div class="brand-sub">Centre d'appels IA</div>
+        </div>
+      </div>
+      <h1>Connexion</h1>
+      <div class="sub">Accès réservé à l'administrateur</div>
+
+      <form id="login-form" onsubmit="return doLogin(event)">
+        <div class="group">
+          <label for="username">Identifiant</label>
+          <input id="username" type="text" autocomplete="username" placeholder="admin" autofocus>
+        </div>
+        <div class="group">
+          <label for="password">Mot de passe</label>
+          <input id="password" type="password" autocomplete="current-password" placeholder="••••••••">
+        </div>
+        <button class="btn" id="login-btn" type="submit">Se connecter</button>
+      </form>
+      <div class="err" id="err"></div>
+      <div class="foot">NexCall AI · accès sécurisé</div>
+    </div>
+  </div>
+
+  <script>
+    async function doLogin(e){
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      const err = document.getElementById('err');
+      err.style.display = 'none';
+      btn.disabled = true; btn.textContent = 'Connexion…';
+      try{
+        const res = await fetch('/api/auth/login', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            username: document.getElementById('username').value.trim(),
+            password: document.getElementById('password').value,
+          })
+        });
+        if(res.ok){
+          window.location.href = '/';
+          return false;
+        }
+        const data = await res.json().catch(()=>({}));
+        err.textContent = data.detail || 'Identifiants invalides';
+        err.style.display = 'block';
+      }catch(ex){
+        err.textContent = 'Erreur de connexion au serveur';
+        err.style.display = 'block';
+      }
+      btn.disabled = false; btn.textContent = 'Se connecter';
+      return false;
+    }
+  </script>
+</body>
+</html>
